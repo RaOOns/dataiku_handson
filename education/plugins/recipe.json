@@ -1,47 +1,144 @@
 {
   "meta": {
-    "label": "데이터 유형 선택(Keep Columns by Type)",
-    "description": "데이터셋 중 문자형 또는 숫자형 데이터만 남기는 기능입니다.",
-    "iconColor:" : "blue"
+    "label": "이미지 전처리 ver2",
+    "description": "선택한 서브폴더의 이미지에 리사이즈/크롭/회전을 적용하여 출력 폴더에 저장합니다.",
+    "icon": "icon-camera"
   },
-  
+
   "kind": "PYTHON",
 
-    
   "inputRoles": [
     {
-      "name": "input_dataset",          // 역할의 내부 식별자(ID). recipe.py에서 이 이름으로 참조
-      "label": "Input dataset",         // UI에 표시될 역할명(사용자에게 보이는 텍스트)
-      "arity": "UNARY",                 // 입력 개수 제한: UNARY=정확히 1개(단일 입력)
-      "acceptsDataset": true,           // 이 역할이 '데이터셋' 타입을 받는지 여부
-      "required": true                  // 필수 여부: true면 반드시 연결해야 실행 가능
+      "name": "my_folder_input",
+      "label": "입력 이미지 폴더",
+      "description": "전처리할 이미지 폴더",
+      "arity": "UNARY",
+      "required": true,
+      "acceptsDataset": false,
+      "acceptsManagedFolder": true
     }
   ],
-  
-    
+
+  "selectableFromFolder": "my_folder_input",
+
   "outputRoles": [
     {
-      "name": "output_dataset",
-      "label": "Output dataset",
+      "name": "my_folder_output",
+      "label": "출력 이미지 폴더",
+      "description": "전처리가 완료된 이미지 폴더",
       "arity": "UNARY",
-      "acceptsDataset": true,
-      "required": true
+      "required": true,
+      "acceptsDataset": false,
+      "acceptsManagedFolder": true
     }
   ],
-  
-  "selectableFromDataset": "input_dataset",
-    
-    
-  "params": [                           
+
+  "params": [
     {
-      "name": "select_type",            // recipe.py에서 config.get("select_type") 로 접근되는 내부 파라미터 이름
-      "label": "Select type",           // UI 화면에서 사용자에게 보이는 파라미터 표시명
-      "type": "SELECT",                 // 파라미터 입력 방식: 드롭다운 선택형
-      "defaultValue": "string",         // 초기 선택값 (사용자가 수정하지 않아도 기본 적용되는 값)
-      "selectChoices": [                // SELECT 타입에서 선택 가능한 옵션 리스트
-        { "value": "string",  "label": "String columns only" },   // 선택 값=string, UI에 표시될 텍스트=String columns only
-        { "value": "numeric", "label": "Numeric columns only" }   // 선택 값=numeric, UI에 표시될 텍스트=Numeric columns only
-      ]
+      "name": "sep_compute",
+      "label": "Compute",
+      "type": "SEPARATOR"
+    },
+    {
+      "name": "compute_device",
+      "label": "실행 디바이스",
+      "type": "SELECT",
+      "defaultValue": "cpu",
+      "selectChoices": [
+        {"value": "cpu", "label": "CPU"},
+        {"value": "gpu", "label": "GPU (CUDA, PyTorch+Kornia 필요)"}
+      ],
+      "description": "GPU를 선택하면 PyTorch+Kornia 기반 배치 처리로 가속합니다.환경에 CUDA가 없거나 PyTorch 설치가 없으면 자동으로 CPU로 폴백됩니다."
+    },
+
+    {
+      "name": "gpu_batch_size",
+      "label": "GPU 배치 크기",
+      "type": "INT",
+      "defaultValue": 16,
+      "visibilityCondition": "model.compute_device == 'gpu'",
+      "description": "여러 장을 한 번에 처리합니다. "
+    },
+      
+    {
+      "name": "sep_gpu",
+      "label": " ※ 주의사항: Code Envs 및 Container를 확인하세요.",
+      "type": "SEPARATOR",
+      "visibilityCondition": "model.compute_device == 'gpu'",
+      "description": ""
+    },
+
+    {
+      "name": "sep1",
+      "label": "Resize",
+      "type": "SEPARATOR"
+    },
+    {
+      "name": "apply_resize",
+      "label": "리사이즈 적용",
+      "type": "BOOLEAN",
+      "defaultValue": true
+    },
+    {
+      "name": "resize_width",
+      "label": "리사이즈 가로(px)",
+      "type": "INT",
+      "defaultValue": 224,
+      "visibilityCondition": "model.apply_resize"
+    },
+    {
+      "name": "resize_height",
+      "label": "리사이즈 세로(px)",
+      "type": "INT",
+      "defaultValue": 224,
+      "visibilityCondition": "model.apply_resize"
+    },
+
+    {
+      "name": "sep2",
+      "label": "Crop",
+      "type": "SEPARATOR"
+    },
+    {
+      "name": "apply_crop",
+      "label": "크롭 적용",
+      "type": "BOOLEAN",
+      "defaultValue": false
+    },
+    {
+      "name": "crop_start",
+      "label": "크롭 시작 좌표",
+      "type": "STRING",
+      "defaultValue": "0,0",
+      "visibilityCondition": "model.apply_crop",
+      "description": "형식: x,y"
+    },
+    {
+      "name": "crop_range",
+      "label": "크롭 범위",
+      "type": "STRING",
+      "defaultValue": "200, 200",
+      "visibilityCondition": "model.apply_crop",
+      "description": "형식: w,h (0 또는 음수면 시작점부터 끝까지로 처리)"
+    },
+
+    {
+      "name": "sep3",
+      "label": "Rotation",
+      "type": "SEPARATOR"
+    },
+    {
+      "name": "apply_rotate",
+      "label": "회전 적용",
+      "type": "BOOLEAN",
+      "defaultValue": false
+    },
+    {
+      "name": "rotate_deg",
+      "label": "회전 각도(도)",
+      "type": "DOUBLE",
+      "defaultValue": 0.0,
+      "visibilityCondition": "model.apply_rotate"
     }
   ]
 }
