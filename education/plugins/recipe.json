@@ -2,7 +2,7 @@
   "meta": {
     "label": "데이터 유형 선택(Keep Columns by Type)",
     "description": "데이터셋 중 문자형 또는 숫자형 데이터만 남기는 기능입니다.",
-    "iconColor:" : "blue"
+    "iconColor": "blue"
   },
   
   "kind": "PYTHON",
