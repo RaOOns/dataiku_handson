@@ -1,0 +1,47 @@
+{
+  "meta": {
+    "label": "데이터 유형 선택(Keep Columns by Type)",
+    "description": "데이터셋 중 문자형 또는 숫자형 데이터만 남기는 기능입니다.",
+    "iconColor:" : "blue"
+  },
+  
+  "kind": "PYTHON",
+
+    
+  "inputRoles": [
+    {
+      "name": "input_dataset",          // 역할의 내부 식별자(ID). recipe.py에서 이 이름으로 참조
+      "label": "Input dataset",         // UI에 표시될 역할명(사용자에게 보이는 텍스트)
+      "arity": "UNARY",                 // 입력 개수 제한: UNARY=정확히 1개(단일 입력)
+      "acceptsDataset": true,           // 이 역할이 '데이터셋' 타입을 받는지 여부
+      "required": true                  // 필수 여부: true면 반드시 연결해야 실행 가능
+    }
+  ],
+  
+    
+  "outputRoles": [
+    {
+      "name": "output_dataset",
+      "label": "Output dataset",
+      "arity": "UNARY",
+      "acceptsDataset": true,
+      "required": true
+    }
+  ],
+  
+  "selectableFromDataset": "input_dataset",
+    
+    
+  "params": [                           
+    {
+      "name": "select_type",            // recipe.py에서 config.get("select_type") 로 접근되는 내부 파라미터 이름
+      "label": "Select type",           // UI 화면에서 사용자에게 보이는 파라미터 표시명
+      "type": "SELECT",                 // 파라미터 입력 방식: 드롭다운 선택형
+      "defaultValue": "string",         // 초기 선택값 (사용자가 수정하지 않아도 기본 적용되는 값)
+      "selectChoices": [                // SELECT 타입에서 선택 가능한 옵션 리스트
+        { "value": "string",  "label": "String columns only" },   // 선택 값=string, UI에 표시될 텍스트=String columns only
+        { "value": "numeric", "label": "Numeric columns only" }   // 선택 값=numeric, UI에 표시될 텍스트=Numeric columns only
+      ]
+    }
+  ]
+}
