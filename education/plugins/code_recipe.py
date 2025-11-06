@@ -9,6 +9,7 @@ input_data = dataiku.Dataset("input_dataset")
 input_data_df = input_data.get_dataframe()
 
 # -------------------------------------------------------------------------------- NOTEBOOK-CELL: CODE
+
 columns_type = "string"
 row_cnt = 0
 
