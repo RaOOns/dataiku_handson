@@ -10,15 +10,23 @@ car_data_1_joined_df = car_data_1_joined.get_dataframe()
 
 # -------------------------------------------------------------------------------- NOTEBOOK-CELL: CODE
 columns_type = "string"
+row_int = 0
 
 if columns_type == "string":
     py_code2_df = car_data_1_joined_df.select_dtypes(include=['object', 'string'])
 
 elif columns_type != "string":
     py_code2_df = car_data_1_joined_df.select_dtypes(exclude=['object', 'string'])
-
+    
 else:
-  py_code2_df = car_data_1_joined_df.copy()
+    py_code2_df = py_code2_df.copy()
+    
+    
+    
+if row_cnt != 0:
+    py_code2_df = py_code2_df.iloc[:row_cnt, :]
+else:
+    pass
 
 # -------------------------------------------------------------------------------- NOTEBOOK-CELL: CODE
 # Write recipe outputs
