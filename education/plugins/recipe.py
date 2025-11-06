@@ -15,7 +15,7 @@ out_ds = dataiku.Dataset(out_name)
 # --- 2) 파라미터 읽기 ---
 config = get_recipe_config()
 select_type = config.get("select_type", "string")  # "string" 또는 "numeric"
-
+row_cnt = config.get("row_cnt", 0)
 
 
 # --- 3) 입력 데이터 로드 ---
@@ -31,6 +31,12 @@ elif select_type == "numeric":
     out_df = df.select_dtypes(include=["number"])
 else:
     out_df = df.copy()
+
+    
+if row_cnt != 0:
+    out_df = out_df.iloc[:row_cnt, :]
+else:
+    pass
 
 # --- 5) 결과 쓰기 ---
 out_ds.write_with_schema(out_df)
